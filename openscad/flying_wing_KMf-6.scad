@@ -81,7 +81,7 @@ root_cord = 150;
 tip_cord = 50;
 
 aileron_offset = 50;
-aileron_offset_w = 25;
+aileron_offset_w = 37.5;
 
 // Make the top of bottom of cockpit eqaul 1/2 width of a4 - easier to square-up
 cockpit_x = a4_w/2+foam_height*2;
@@ -350,7 +350,7 @@ module print_foam(page=2, outline=true)
     {
         translate([0,0,0])    wing_part(cord_percentage = 0.5);
         translate([a4_h-tip_cord*.5,0,0]) wing_tip();
-       mirror([1,0,0])translate([0,-a4_w,0]) rotate([0,0,aileron_d]) translate([-a4_h,aileron_offset_w*3,0])  aileron_part();
+       translate([0,-a4_w,0]) mirror([0,1,0]) rotate([0,0,aileron_d]) translate([-aileron_offset,0,0]) aileron_part();
     }
     if(page==3)
     {
