@@ -33,7 +33,7 @@ The cuts use the most of the natural dimension of A4 sheets.
 
 Only six sheets are needed. The model can export directly the SVG file, per page, for printing a template.
 
-![](./images/flying_wing_KMf-6_foam_sheet_1.svg "Model")
+![](./images/flying_wing_KMf-6_page_2.svg "Model")
 
 The 3d parts can be printed on a standard 200x200 print bed, with only part requiring supports. Prints with single walls, 5% infill, are 72g or 85g including supports. 
 
