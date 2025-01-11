@@ -37,6 +37,7 @@
 
 
 display = 1;
+display_page = 1;
 
 module display(display=display)
 {
@@ -58,7 +59,7 @@ module display(display=display)
     }
     if(display==5)
     {
-        projection() print_foam(page=2, outline=false);
+        projection() print_foam(page=display_page, outline=false);
     }
 }
 
@@ -243,6 +244,15 @@ module motor_and_prop()
     color("red") translate([0,-33.2+6,0]) rotate([0,30,0]) cube([129.5,10,15], center=true);
 }
 
+module chamfer()
+{
+    difference()
+    {
+        cube(foam_height, center=true);
+        translate([0,foam_height/2,foam_height/2]) rotate([0,90,0]) cylinder(h=foam_height*4,r=foam_height, center=true);
+    }
+}
+
 module cockpit()
 {
     color("green") translate([0,-cockpit_y/2,0]) 
@@ -256,8 +266,8 @@ module cockpit()
             }
                 cube([cockpit_x,cockpit_y-foam_height*2, cockpit_z-foam_height*4], center=true);            
                 cube([cockpit_x-foam_height*4,cockpit_y-foam_height*2, cockpit_z+foam_height*2], center=true);            
-                translate([0,0,foam_height/2]) cube([cockpit_x,cockpit_y-foam_height*2, cockpit_z-foam_height*2], center=true);            
-                translate([0,foam_height/2+foam_height*2,foam_height/2]) cube([cockpit_x-foam_height*4,cockpit_y-foam_height*2, cockpit_z-foam_height*2], center=true);            
+                translate([0,0,foam_height*1.5]) cube([cockpit_x,cockpit_y-foam_height*2, cockpit_z-foam_height*2], center=true);            
+                translate([0,foam_height/2+foam_height*2,foam_height*1.5]) cube([cockpit_x-foam_height*4,cockpit_y-foam_height*2, cockpit_z-foam_height*1], center=true);            
             //cockpit_motor_spacing
             translate([cockpit_motor_spacing/2, 0, cockpit_motor_spacing/2] )
                 rotate([90,0,0])
@@ -274,6 +284,13 @@ module cockpit()
 
 
         }
+        // Champher on uprights
+        translate([cockpit_x/2-foam_height*1.5,cockpit_y/2-foam_height*1.5,-cockpit_z/2+foam_height*2.5]) rotate([0,0,180]) chamfer();
+        translate([-cockpit_x/2+foam_height*1.5,cockpit_y/2-foam_height*1.5,-cockpit_z/2+foam_height*2.5]) rotate([0,0,180]) chamfer();
+        translate([cockpit_x/2-foam_height*1.5,-cockpit_y/2+foam_height*1.5,-cockpit_z/2+foam_height*2.5]) rotate([0,0,  0]) chamfer();
+        translate([-cockpit_x/2+foam_height*1.5,-cockpit_y/2+foam_height*1.5,-cockpit_z/2+foam_height*2.5]) rotate([0,0,  0]) chamfer();
+        translate([cockpit_x/2-foam_height*2.5,cockpit_y/2-foam_height*0.5,-cockpit_z/2+foam_height*2.5]) rotate([0,0,90]) chamfer();
+        translate([-cockpit_x/2+foam_height*2.5,cockpit_y/2-foam_height*0.5,-cockpit_z/2+foam_height*2.5]) rotate([0,0,270]) chamfer();
     }
 }
 
@@ -314,7 +331,6 @@ module print_foam_all(pages=6, outline=true)
     for (i = [1 : pages])
     {
         translate([ 0, (a4_w+10)*i, 0 ]) print_foam(page=i, outline=outline);
-        echo(i);
     }
 }
 
