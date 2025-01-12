@@ -36,8 +36,8 @@
 // £121.63 1.72+6.99+8.49+12.99+14.50+2.35+13.99+2.80+6.10+29.80+6.00+1.0+14.90
 
 
-display = 1;
-display_page = 1;
+display = 3;
+display_page = 7;
 display_part = "cockpit"; //"cockpit" "cockpit_front"  "leading_edge_half")
 
 module display(display=display)
@@ -358,7 +358,7 @@ module print_single(part)
 }
 
 
-module print_foam_all(pages=6, outline=true)
+module print_foam_all(pages=7, outline=true)
 {
     for (i = [1 : pages])
     {
@@ -406,15 +406,14 @@ module print_foam(page=2, outline=true)
     }
     if(page==7)
     {
- *       translate([0,-cockpit_x/2+foam_height,0]) rotate([0,0,90]) cockpit_foam_top();
- *       translate([0,-cockpit_x/2-a4_w/2+foam_height,0]) rotate([0,0,90]) cockpit_foam_top();
+        translate([0,0,0])    wing_part(cord_percentage = 0.5);
     }
+    if(page==8)
+    {
+        print_foam(page=7, outline=outline);
+    }
+    
     /*
-
-
-
- 
- 
     translate_away_from_cockpit(mirror=true)
     {
         half_KMF6_foam();

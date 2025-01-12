@@ -31,7 +31,7 @@ The cuts use the most of the natural dimension of A4 sheets.
 
 ![](./images/flying_wing_KMf-6_foam_sheets.png "Sheets")
 
-Only six sheets are needed. The model can export directly the SVG file, per page, for printing a template.
+Only eight sheets are needed. The model can export directly the SVG file, per page, for printing a template.
 
 ![](./images/flying_wing_KMf-6_page_2.svg "Model")
 

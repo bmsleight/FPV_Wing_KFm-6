@@ -38,7 +38,7 @@ openscad ./flying_wing_KMf-6.scad  -D 'display=4' -o ../images/flying_wing_KMf-6
 
 
 # SVG files and [single pdf files in temp]
-for i in {1..6}
+for i in {1..8}
 do
     openscad ./flying_wing_KMf-6.scad  -D 'display=5'  -D display_page="$i" -o ../images/flying_wing_KMf-6_page_$i.svg
     inkscape --file=../images/flying_wing_KMf-6_page_$i.svg --without-gui --export-area-page --export-pdf=$WORK_DIR/$i.pdf
