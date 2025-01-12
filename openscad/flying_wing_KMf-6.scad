@@ -36,7 +36,7 @@
 // £121.63 1.72+6.99+8.49+12.99+14.50+2.35+13.99+2.80+6.10+29.80+6.00+1.0+14.90
 
 
-display = 6;
+display = 1;
 display_page = 1;
 display_part = "cockpit"; //"cockpit" "cockpit_front"  "leading_edge_half")
 
@@ -95,7 +95,7 @@ cockpit_z = 40;
 cockpit_thickness = foam_height;
 cockpit_window_diameter = 15;
 
-cockpit_motor_spacing = 16;
+cockpit_motor_spacing = 12;
 cockpit_motor_spacing_hole = 3;
 
 
