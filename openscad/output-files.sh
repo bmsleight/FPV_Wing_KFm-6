@@ -47,3 +47,15 @@ done
 pdfunite $WORK_DIR/*.pdf ../images/flying_wing_KMf-6_pages.pdf
 
 
+# Display 6
+declare -a parts=("cockpit" "cockpit_front" "leading_edge_half")
+
+echo "####"
+for i in "${parts[@]}"
+do
+    echo ../stl/flying_wing_KMf-6_printed_part_$i.stl
+	openscad ./flying_wing_KMf-6.scad  -D 'display=6' -o ../stl/flying_wing_KMf-6_printed_part_$i.stl
+done
+echo "####"
+
+
