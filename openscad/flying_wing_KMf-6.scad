@@ -358,7 +358,7 @@ module print_single(part)
 }
 
 
-module print_foam_all(pages=7, outline=true)
+module print_foam_all(pages=8, outline=true)
 {
     for (i = [1 : pages])
     {
@@ -366,6 +366,10 @@ module print_foam_all(pages=7, outline=true)
     }
 }
 
+module a4_mirror_and_reposition()
+{
+    translate([a4_h,0,0]) mirror([1,0,0])  children();
+}
 
 module print_foam(page=2, outline=true)
 {
@@ -388,29 +392,29 @@ module print_foam(page=2, outline=true)
     {
         translate([0,0,0])    wing_part(cord_percentage = 0.25);
         translate([0,-root_cord*0.25,0])    wing_part(cord_percentage = 0.25);
-        translate([a4_w-cockpit_y/2+foam_height*3,-cockpit_z/2,0]) rotate([0,0,90]) cockpit_foam_side();
+        translate([a4_w-cockpit_y/2+foam_height*4,-cockpit_z/2,0]) rotate([0,0,90]) cockpit_foam_side();
         translate([0,-a4_w-(-cockpit_x/2+foam_height)/2,0]) rotate([0,0,90]) scale([0.5,1,1])  cockpit_foam_top();
     }
-    
     if(page==4)
     {
-        print_foam(page=1, outline=outline);
+        wing_part(cord_percentage = 0.5);
     }
+    
     if(page==5)
     {
-        print_foam(page=2, outline=outline);
+        a4_mirror_and_reposition() print_foam(page=1, outline=outline);
     }
     if(page==6)
     {
-        print_foam(page=3, outline=outline);
+        a4_mirror_and_reposition() print_foam(page=2, outline=outline);
     }
     if(page==7)
     {
-        translate([0,0,0])    wing_part(cord_percentage = 0.5);
+        a4_mirror_and_reposition() print_foam(page=3, outline=outline);
     }
     if(page==8)
     {
-        print_foam(page=7, outline=outline);
+        a4_mirror_and_reposition()  print_foam(page=4, outline=outline);
     }
     
     /*
