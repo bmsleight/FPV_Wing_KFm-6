@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# cd openscad/ ; bash ./output-files.sh ; cd ..
+
+
 WORK_DIR=`mktemp -d `
 
 # check if tmp dir was created
@@ -19,14 +22,17 @@ trap cleanup EXIT
 
 
 # Display 1
-openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal.png  --imgsize=1024,768 --viewall --autocenter  --camera=0,0,0,30,-30,30,0
+openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal.png  --imgsize=1024,768 --viewall --autocenter  --camera=0,0,0,30,30,0,0
 openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal_front.png  --imgsize=1024,768 --viewall --autocenter --camera=0,0,0,-30,30,210,0
 openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_front.png  --imgsize=1024,768 --viewall --autocenter --camera=0,0,0,270,0,0,0
+openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_full_model.stl
+
 
 
 # Display 2
 openscad ./flying_wing_KMf-6.scad  -D 'display=2' -o ../stl/flying_wing_KMf-6_printed_parts.stl
 openscad ./flying_wing_KMf-6.scad  -D 'display=2' -o ../images/flying_wing_KMf-6_prints.png  --imgsize=1024,768 
+openscad ./flying_wing_KMf-6.scad  -D 'display=2' -D 'expand=true' -o ../images/flying_wing_KMf-6_prints_expand.png  --imgsize=1024,768 
 
 
 
@@ -48,7 +54,7 @@ pdfunite $WORK_DIR/*.pdf ../images/flying_wing_KMf-6_pages.pdf
 
 
 # Display 6
-declare -a parts=("cockpit" "cockpit_front" "leading_edge_half")
+declare -a parts=("cockpit" "cockpit_front" "leading_edge_half" "side_panel")
 
 echo "####"
 for i in "${parts[@]}"
@@ -58,4 +64,22 @@ do
 done
 echo "####"
 
+
+openscad ./flying_wing_KMf-6.scad  -D 'display=1' \
+    -D '$vpr = [60, 0, 360 * $t];' \
+    -D '$vpd = 1900;' \
+    -o "${WORK_DIR}/rotate.png"  \
+    --imgsize=1024,768 \
+    --animate 60 \
+    --viewall --autocenter
+    
+rm ../images/flying_wing_KMf.gif
+    
+ffmpeg \
+        -framerate 15 \
+        -pattern_type glob \
+        -i "${WORK_DIR}/*.png" \
+        -r 60 \
+        -vf scale=512:-1 \
+        "../images/flying_wing_KMf.gif" 
 
