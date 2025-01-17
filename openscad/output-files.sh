@@ -25,7 +25,7 @@ trap cleanup EXIT
 openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal.png  --imgsize=1024,768 --viewall --autocenter  --camera=0,0,0,30,30,0,0
 openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal_front.png  --imgsize=1024,768 --viewall --autocenter --camera=0,0,0,-30,30,210,0
 openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_front.png  --imgsize=1024,768 --viewall --autocenter --camera=0,0,0,270,0,0,0
-openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_full_model.stl
+openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../stl/flying_wing_KMf-6_full_model.stl
 
 
 
