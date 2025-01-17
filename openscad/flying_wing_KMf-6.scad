@@ -36,7 +36,7 @@
 // £121.63 1.72+6.99+8.49+12.99+14.50+2.35+13.99+2.80+6.10+29.80+6.00+1.0+14.90
 
 
-display = 3;
+display = 7;
 display_page = 7;
 display_part = "cockpit"; //"cockpit" "cockpit_front"  "leading_edge_half")
 
@@ -65,6 +65,13 @@ module display(display=display)
     if (display==6)
     {
          print_single(display_part);
+    }
+    if(display==7)
+    {
+        print_all_new() 
+*        printed_part();
+*        display_model(foam=true, printed_part=false);
+*        print_part_cut();
     }
 }
 
@@ -100,6 +107,14 @@ cockpit_motor_spacing_hole = 3;
 
 
 sweep_d = atan((a4_w-tip_cord)/(a4_h));
+sweep_d_l1 = atan((a4_w-tip_cord+tip_cord*0.25-root_cord*0.25)/(a4_h));
+sweep_d_l2 = atan((a4_w-tip_cord+tip_cord*0.5-root_cord*0.5)/(a4_h));
+sweep_d_l3 = atan((a4_w-tip_cord+tip_cord-root_cord)/(a4_h));
+
+size_of_printer=190;
+height_hypo_size_of_printer = size_of_printer * cos(sweep_d);
+height_adj_size_of_printer = size_of_printer * sin(sweep_d);
+
 aileron_d = atan ( (a4_w - root_cord) /  a4_h); 
 
 hinge = 2.5;
@@ -109,7 +124,7 @@ aileron_y = tan(aileron_d) * aileron_offset + hinge;
 echo("wing_span: ", wing_span);
 echo("wing_span inc body: ", wing_span+cockpit_x);
 echo("Sweep degrees: ", sweep_d);
-
+echo(height_hypo_size_of_printer );
 
 // The OpenSCAD modules 
 
@@ -441,6 +456,167 @@ module translate_away_from_cockpit(mirror=false)
     }
     
 }
+
+module side_slot(ss_len=cockpit_y/2, start_angle=20, end_angle=0)
+{
+    difference()
+    {
+        translate([0,-foam_height/2,0]) resize([0,ss_len+foam_height,0]) translate([foam_height,0,0])  rotate([0,90,0]) rotate([0,0,90]) chamfer();
+        mirror([0,1,0]) translate([foam_height/2,ss_len/2,-foam_height]) rotate([0,0,end_angle]) cube([foam_height*4, foam_height, foam_height*2]);
+        mirror([0,0,0]) translate([foam_height/2,ss_len/2,-foam_height]) rotate([0,0,-start_angle]) cube([foam_height*4, foam_height, foam_height*2]);
+
+    }
+}
+
+module cockpit_side_panel()
+{
+    translate([(cockpit_x-foam_height*1)/2,0,0])  
+    {   
+        cube([foam_height,cockpit_y, cockpit_z], center=true);    
+        translate([0,cockpit_y/2-cockpit_y/8,foam_height*6/2]) side_slot(cockpit_y/4, start_angle=sweep_d, end_angle=sweep_d_l1);
+        // mirror above
+        mirror([0,0,1]) translate([0,cockpit_y/2-cockpit_y/8,foam_height*6/2]) side_slot(cockpit_y/4, start_angle=sweep_d, end_angle=sweep_d_l1);
+        translate([0,cockpit_y/8,foam_height*4/2]) side_slot(cockpit_y/4, start_angle=sweep_d_l1, end_angle=sweep_d_l2);
+        // mirror above
+        mirror([0,0,1]) translate([0,cockpit_y/8,foam_height*4/2]) side_slot(cockpit_y/4, start_angle=sweep_d_l1, end_angle=sweep_d_l2);
+        translate([0,-cockpit_y/4,foam_height*2/2]) side_slot(cockpit_y/2, start_angle=sweep_d_l2, end_angle=sweep_d_l3);
+        // mirror above
+        mirror([0,0,1]) translate([0,-cockpit_y/4,foam_height*2/2]) side_slot(cockpit_y/2, start_angle=sweep_d_l2, end_angle=sweep_d_l3);
+
+    }
+}
+
+
+module cockpit_motor_hole()
+{
+    translate([cockpit_motor_spacing/2, 0, cockpit_motor_spacing/2] )
+                rotate([90,0,0])
+                    cylinder(h=cockpit_y*4,r=cockpit_motor_spacing_hole/2, center=true);
+}
+
+module cockpit_shell()
+{
+    translate([0,-cockpit_y/2,0]) 
+    {
+    //    cube([cockpit_x-foam_height*2,cockpit_y, cockpit_z-foam_height*2], center=true);    
+        translate([0,0,-(cockpit_z-foam_height)/2--foam_height])  
+        difference()
+        {
+            cube([cockpit_x-foam_height*2,cockpit_y, foam_height], center=true);    
+            cube([cockpit_x-foam_height*4,cockpit_y-foam_height*2, foam_height*4], center=true);    
+        }
+
+        cockpit_side_panel();
+        mirror([1,0,0]) cockpit_side_panel();
+
+    // Diagonals. 
+        translate([0,0,-cockpit_z/2+foam_height*3/2]) intersection()
+        {
+            cube([cockpit_x-foam_height*2,cockpit_y, foam_height], center=true);
+            union()
+            {
+                number_extra = 3;
+                space = cockpit_x/number_extra;
+                for(i = [0:5])
+                {
+                    rotate([0,0,45]) translate([-cockpit_x/2+space*i,0]) cube([foam_height,cockpit_y*2,foam_height], center=true);
+                    rotate([0,0,-45]) translate([-cockpit_x/2+space*i,0]) cube([foam_height,cockpit_y*2,foam_height], center=true);
+                }
+            }
+        }
+
+
+    // Back motor
+    translate([0,-(cockpit_y-foam_height)/2,0]) difference()
+        {
+            cube([cockpit_x, foam_height, cockpit_z-foam_height*2], center=true);
+            mirror([0,0,0]) cockpit_motor_hole();
+            mirror([1,0,0]) cockpit_motor_hole();
+            mirror([1,0,1]) cockpit_motor_hole();
+            mirror([0,0,1]) cockpit_motor_hole();
+        }
+    }
+}
+
+
+module print_all_new()  
+{
+    translate([0,cockpit_y/2+cockpit_z/2+foam_height/2,0]) print_part_cut(cut=1);
+    translate([cockpit_x/2+cockpit_z/2+foam_height,0,0]) print_part_cut(cut=2);
+    mirror([1,0,0]) translate([cockpit_x/2+cockpit_z/2+foam_height,0,0]) print_part_cut(cut=2);
+    translate([0,-cockpit_y/2-foam_height*3,0]) print_part_cut(cut=3);
+    translate([0,-cockpit_y/2-foam_height*8.5,0]) print_part_cut(cut=3);
+    print_part_cut(cut=4);
+}
+
+
+
+module print_part_cut(cut=4)
+{
+    color("blue") 
+    {
+        if(cut==1)
+        {
+            rotate([90,0,0]) difference()
+            {
+                printed_part();
+                translate([0,-wing_span,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+                translate([-wing_span-cockpit_x/2+foam_height,0,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+                translate([+wing_span+cockpit_x/2-+foam_height,0,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+            }
+        }
+        if(cut==2)
+        {
+            translate([0,cockpit_y/2,-cockpit_x/2+foam_height]) rotate([0,-90,0]) difference()
+            {
+                printed_part();
+                translate([-wing_span+cockpit_x/2-foam_height,0,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+                translate([+wing_span+wing_span/2+cockpit_x/2-height_hypo_size_of_printer,0,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+*                translate([+wing_span-cockpit_x/2+wing_span/2-height_hypo_size_of_printer,0,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+            }
+        }
+        if(cut==3)
+        {
+        rotate([90,0,0]) rotate([0,0,sweep_d]) translate([height_hypo_size_of_printer/2,-height_adj_size_of_printer/2,0]) translate([-wing_span/2-cockpit_x/2,(a4_w-tip_cord),0]) difference()
+            {
+                printed_part();
+                translate([-wing_span/2+cockpit_x/2-height_hypo_size_of_printer,0,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+            }
+        }
+        
+        if(cut==4)
+        {
+            translate([0,cockpit_y/2,cockpit_z/2-foam_height]) rotate([0,0,0]) difference()
+            {
+                printed_part();
+                translate([0,wing_span-0.075,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+                translate([-wing_span-cockpit_x/2+foam_height+0.075,0,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+                translate([+wing_span+cockpit_x/2-foam_height-0.075,0,0]) cube([wing_span*2,wing_span*2,wing_span*2], center=true);
+            }
+        }
+    }
+}
+
+
+module printed_part()
+{
+    color("yellow")
+    {
+        translate_away_from_cockpit(mirror=false) 
+        {
+            leading_edge();
+        }
+        translate_away_from_cockpit(mirror=true) 
+        {
+            leading_edge();
+        }   
+        cockpit_front_shell();
+        cockpit_shell();
+    }
+}
+
+
+
 
 module display_printed_parts()
 {
