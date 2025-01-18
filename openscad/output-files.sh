@@ -60,7 +60,7 @@ echo "####"
 for i in "${parts[@]}"
 do
     echo ../stl/flying_wing_KMf-6_printed_part_$i.stl
-	openscad ./flying_wing_KMf-6.scad  -D 'display=6' -o ../stl/flying_wing_KMf-6_printed_part_$i.stl
+	openscad ./flying_wing_KMf-6.scad  -D 'display=6' -D display_part=\""$i"\" -o ../stl/flying_wing_KMf-6_printed_part_$i.stl
 done
 echo "####"
 

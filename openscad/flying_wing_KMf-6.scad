@@ -36,7 +36,7 @@
 // £121.63 1.72+6.99+8.49+12.99+14.50+2.35+13.99+2.80+6.10+29.80+6.00+1.0+14.90
 
 
-display = 2;
+display = 6;
 display_page = 7;
 expand=false;
 display_part = "side_panel"; //"cockpit" "cockpit_front"  "leading_edge_half" "side_panel")
@@ -73,6 +73,7 @@ module display(display=display)
     }
     if (display==6)
     {
+        echo(display_part);
         if(display_part=="cockpit_front")
         {
             print_part_cut(cut=1);
