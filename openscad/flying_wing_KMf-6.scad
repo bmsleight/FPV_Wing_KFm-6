@@ -36,10 +36,10 @@
 // £121.63 1.72+6.99+8.49+12.99+14.50+2.35+13.99+2.80+6.10+29.80+6.00+1.0+14.90
 
 
-display = 6;
+display = 1;
 display_page = 7;
-expand=false;
-display_part = "side_panel"; //"cockpit" "cockpit_front"  "leading_edge_half" "side_panel")
+expand=true;
+display_part = "cockpit_front"; //"cockpit" "cockpit_front"  "leading_edge_half" "side_panel")
 
 module display(display=display)
 {
@@ -103,7 +103,7 @@ display();
 
 // The OpenSCAD Variables
 
-$fn=60;
+$fn=120;
 
 
 a4_h = 297;
@@ -122,10 +122,16 @@ cockpit_x = a4_w/2+foam_height*2;
 cockpit_y = root_cord;
 cockpit_z = 40;
 cockpit_thickness = foam_height;
-cockpit_window_diameter = 15;
+camera = 19.5;
+cockpit_window_diameter = camera+cockpit_thickness*2;
+cw_b=cockpit_window_diameter*2.5;
 
-cockpit_motor_spacing = 12;
+cockpit_motor_spacing = 11.5;
 cockpit_motor_spacing_hole = 3;
+cockpit_motor_spacing_hole_wire_x = 3;
+cockpit_motor_spacing_hole_wire_y = 10;
+cockpit_motor_spacing_hole_wire_offset = 30;
+
 
 
 sweep_d = atan((a4_w-tip_cord)/(a4_h));
@@ -240,8 +246,54 @@ module cockpit_front_shell()
         cockpit_front();
         cockpit_front(offset_t=cockpit_thickness*2);
         rotate([90,0,0]) cylinder(h=cockpit_y*2, r=cockpit_window_diameter/2, center=true);
-    }  
+        cockpit_front_cone();
+        cockpit_front_cone(offset_t=cockpit_thickness*2);
+    } 
+     intersection()
+    {
+        cockpit_front_cone(offset_t=cockpit_thickness*2);
+        cockpit_front();
+    }
 }
+
+module cockpit_front_cone_plain(offset_t=0)
+{
+
+    front_r = foam_height*2.5;
+    extent_y = (sin(sweep_d) * cockpit_x/2) + foam_height*5 - front_r;
+    translate([0,extent_y-cw_b/8+0.1,0]) rotate([90,0,0]) 
+    {
+        if(offset_t==0)
+        {
+            scale([1,1,0.5]) cylinder(h=cw_b/2,r1=cw_b/2, r2=cockpit_window_diameter/2, center=true);
+            translate([0,0,cockpit_window_diameter/2]) cube([cockpit_window_diameter,cockpit_window_diameter,cockpit_window_diameter/2],center=true);
+        }
+        if(offset_t>0)
+        {
+            scale([1,1,0.5]) cylinder(h=cw_b/2+0.2,r1=cw_b/2-offset_t/2, r2=cockpit_window_diameter/2-offset_t/2, center=true);
+            translate([0,0,cockpit_window_diameter/2+offset_t/4]) cube([cockpit_window_diameter-offset_t,cockpit_window_diameter-offset_t,cockpit_window_diameter/2+offset_t],center=true);
+        }
+    }
+}
+
+module cockpit_front_cone(offset_t=0)
+{
+
+    if(offset_t==0)
+    {
+        cockpit_front_cone_plain();
+    }
+    if(offset_t>0)
+    {
+        difference()
+        {
+                    cockpit_front_cone_plain();
+                    cockpit_front_cone_plain(offset_t=offset_t);
+        }
+    }
+    
+}
+
 
 module cockpit_foam_top()
 {
@@ -425,6 +477,17 @@ module cockpit_motor_hole()
                     cylinder(h=cockpit_y*4,r=cockpit_motor_spacing_hole/2, center=true);
 }
 
+module corner_cockpit()
+{
+    translate([cockpit_x/2-foam_height*1.5,cockpit_y/2-foam_height*0.5,0])
+    {
+        translate([-foam_height*1.5,0,0]) cube([foam_height*4, foam_height, cockpit_z-foam_height*2], center=true);
+        translate([0,-foam_height*1.5,0]) cube([foam_height, foam_height*4, cockpit_z-foam_height*2], center=true);
+        translate([-foam_height*4.,0,-(cockpit_z-foam_height*5)/2]) rotate([0,0,90]) chamfer();
+        rotate([0,0,90]) translate([-foam_height*4.,0,-(cockpit_z-foam_height*5)/2]) rotate([0,0,90]) chamfer();
+    }
+}
+
 module cockpit_shell()
 {
     translate([0,-cockpit_y/2,0]) 
@@ -457,16 +520,26 @@ module cockpit_shell()
         }
 
 
-    // Back motor
-    translate([0,-(cockpit_y-foam_height)/2,0]) difference()
+        // Back motor
+        translate([0,-(cockpit_y-foam_height)/2,0]) difference()
         {
             cube([cockpit_x, foam_height, cockpit_z-foam_height*2], center=true);
             mirror([0,0,0]) cockpit_motor_hole();
             mirror([1,0,0]) cockpit_motor_hole();
             mirror([1,0,1]) cockpit_motor_hole();
             mirror([0,0,1]) cockpit_motor_hole();
+            translate([cockpit_motor_spacing_hole_wire_offset,0,0]) cube([cockpit_motor_spacing_hole_wire_x, foam_height*4, cockpit_motor_spacing_hole_wire_y], center=true);
+        }
+        // corner
+        translate([0,0,0])
+        {
+            mirror([0,0,0]) corner_cockpit();
+            mirror([1,0,0]) corner_cockpit();
+            mirror([0,1,0]) corner_cockpit();
+            mirror([0,1,0]) mirror([1,0,0]) corner_cockpit();
         }
     }
+    
 }
 
 

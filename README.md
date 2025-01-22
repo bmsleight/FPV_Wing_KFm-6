@@ -92,8 +92,9 @@ display();
 
 ## Parts 
 
-* Printed parts 71.75 g single shell, 5% infill
-* Foam board 123g = 41g per sheet assume 3 sheets - https://www.amazon.co.uk/dp/B0CG2VH8F6 
+* Printed parts single shell, 15% infill
+* Foam board 3mm A4
+* Total for naked wing, including glue: 162 grammes 
 * ESC 40g  https://www.unmannedtechshop.co.uk/product/dys-20a-2-4s-brushless-esc-with-5v-2a-bec-for-rc-fixed-wing-aircraft/
 * Motor 32g https://www.unmannedtechshop.co.uk/product/emax-eco-ii-series-2207-motor/
 * Battery 70g, 4S 650mah
@@ -102,3 +103,8 @@ display();
 * Flight controller (5.6g) https://www.hobbyrc.co.uk/speedybee-f405-wing-mini-flight-controller
 * https://www.unmannedtechshop.co.uk/product/tbs-m10-gps-glonass-module/
 * servos
+* Servo horns https://www.amazon.co.uk/Aeroplane-Starter-Accessories-Aeroplanes-Helicopter/dp/B0BN2TH58S/
+
+## Photos
+
+![](./images/photos/a90a050_actual_wing.jpg "Build naked model")
