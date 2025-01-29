@@ -103,7 +103,7 @@ display();
 * Flight controller (5.6g) https://www.hobbyrc.co.uk/speedybee-f405-wing-mini-flight-controller
 * https://www.unmannedtechshop.co.uk/product/tbs-m10-gps-glonass-module/
 * servos
-* Servo horns https://www.amazon.co.uk/Aeroplane-Starter-Accessories-Aeroplanes-Helicopter/dp/B0BN2TH58S/
+* Servo horns https://www.amazon.co.uk/gp/product/B08MDXD3C1/
 
 ## Photos
 

@@ -68,18 +68,19 @@ echo "####"
 openscad ./flying_wing_KMf-6.scad  -D 'display=1' \
     -D '$vpr = [60, 0, 360 * $t];' \
     -D '$vpd = 1900;' \
+    -D 'prop_a = -1890 * $t;' \
     -o "${WORK_DIR}/rotate.png"  \
     --imgsize=1024,768 \
-    --animate 60 \
+    --animate 120 \
     --viewall --autocenter
     
 rm ../images/flying_wing_KMf.gif
     
 ffmpeg \
-        -framerate 15 \
+        -framerate 30 \
         -pattern_type glob \
         -i "${WORK_DIR}/*.png" \
-        -r 60 \
+        -r 120 \
         -vf scale=512:-1 \
         "../images/flying_wing_KMf.gif" 
 
