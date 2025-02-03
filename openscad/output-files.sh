@@ -54,7 +54,7 @@ pdfunite $WORK_DIR/*.pdf ../images/flying_wing_KMf-6_pages.pdf
 
 
 # Display 6
-declare -a parts=("cockpit" "cockpit_front" "leading_edge_half" "side_panel")
+declare -a parts=("cockpit" "cockpit_front" "leading_edge_half" "side_panel" "side_panel_mirror")
 
 echo "####"
 for i in "${parts[@]}"

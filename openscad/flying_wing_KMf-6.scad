@@ -39,7 +39,7 @@
 display = 1;
 display_page = 3;
 expand=false;
-display_part = "cockpit_front"; //"cockpit" "cockpit_front"  "leading_edge_half" "side_panel")
+display_part = "side_panel"; //"cockpit" "cockpit_front"  "leading_edge_half" "side_panel" "side_panel_mirror")
 
 module display(display=display)
 {
@@ -49,6 +49,9 @@ module display(display=display)
         motor_and_prop();
         servo();
         mirror([1,0,0]) servo();
+        servo_horn();
+        mirror([1,0,0]) servo_horn();
+        
     }
     if(display==2)
     {
@@ -82,8 +85,13 @@ module display(display=display)
         }
         if(display_part=="side_panel")
         {
-            print_part_cut(cut=2);
+            print_part_cut(cut=5);
         }
+        if(display_part=="side_panel_mirror")
+        {
+            print_part_cut(cut=5);
+        }
+
         if(display_part=="leading_edge_half")
         {
             print_part_cut(cut=3);
@@ -152,7 +160,15 @@ servo_y = 10;
 servo_z = 4;
 servo_body_x = 23;
 servo_body_y = 31;
-servo_body_z = 12;
+servo_body_z = 12.; // actuall 12.4 but we want two foam protected
+
+servo_hole_x = 35;
+servo_hole_y = 25;
+
+servo_horn_x =  5;
+servo_horn_y =  10;
+servo_horn_z =  20;
+
 servo_position_x= (size_of_printer-servo_body_y/2-(foam_height*9)) * cos(sweep_d)+cockpit_x/2; // Not calculated - too hard
 servo_position_y= -(size_of_printer+servo_body_x/2-(foam_height*9)) * sin(sweep_d); // Not calculated - too hard
 servo_position_rotate =  sweep_d+90;
@@ -192,11 +208,26 @@ module leading_edge()
 }
 
 
-
-module wing_part(cord_percentage = 1)
+module wing_part_not_cut(cord_percentage = 1)
 {
     point_1_y = tan(sweep_d) * wing_span/2;
     linear_extrude(foam_height, center = true) polygon(points=[[0,0],[wing_span/2,-point_1_y], [wing_span/2,-point_1_y], [wing_span/2,-point_1_y-tip_cord*cord_percentage], [0,-root_cord*cord_percentage]]);
+}
+
+module wing_part(cord_percentage = 1, servo_hole=true)
+{
+    if(servo_hole==false)
+    {
+        wing_part_not_cut(cord_percentage = cord_percentage);
+    }
+    if(servo_hole==true)
+    {
+        difference()
+        {
+            wing_part_not_cut(cord_percentage = cord_percentage);
+            translate([-cockpit_x/2,0,0]) servo();
+        }
+    }
 }
 
 module aileron_part()
@@ -246,7 +277,6 @@ module cockpit_front(offset_t=0)
         translate([cockpit_x/2-offset_t,0,0]) profile_leading_edge();
         translate([-cockpit_x/2+offset_t,0,0]) profile_leading_edge();
         translate([0,extent_y-offset_t,0]) rotate([0,0,0]) rotate([90,0,0]) cylinder(h=0.1,r=front_r, center=true);
-*        cube([cockpit_x/2-offset_t, 0.1, cockpit_z-offset_t], center = true);
         translate([0,-offset_t,0]) cube([cockpit_x-offset_t, 0.1, cockpit_z-offset_t], center = true);
     }
 }
@@ -356,9 +386,72 @@ module motor_and_prop()
     }
 }
 
+
+/*
+    translate([0,0,0 ]) linear_extrude(foam_height, center = true) polygon(points=[
+            [aileron_offset,0],
+            [a4_h, -tan(aileron_d) * (a4_h-aileron_offset)],
+            [a4_h, -tan(aileron_d) * (a4_h-aileron_offset) -aileron_offset_w],
+            [aileron_offset, -aileron_offset_w],
+    ]);
+*/
+
+
+module translate_servo_x()
+{
+    // Average of aileron
+    a_x1=aileron_offset;
+    a_x2=a4_h;
+    translate([a_x1+(a_x2-a_x1)/2,0,0]) children();
+    
+}
+
+module translate_servo_horn_y()
+{
+    // Average of aileron
+    a_y1=0;
+    a_y2=-tan(aileron_d) * (a4_h-aileron_offset) -aileron_offset_w;
+            translate([0,a_y1+(a_y2-a_y1)/2,0]) children();
+    
+}
+
+module translate_servo_y()
+{
+    // Average of aileron
+    a_x1=aileron_offset;
+    a_x2=a4_h;
+    s_t_x=a_x1+(a_x2-a_x1)/2;
+    s_t_y=-tan(sweep_d) * s_t_x;
+    translate([0,s_t_y,0]) children();
+    
+}
+
+
+
+
+module servo_horn()
+{
+    // Average of aileron
+    a_x1=aileron_offset;
+    a_y1=0;
+    a_x2=a4_h;
+    a_y2=-tan(aileron_d) * (a4_h-aileron_offset) -aileron_offset_w;
+    translate([0,0,servo_horn_z/2])
+        translate_servo_x()
+            translate_servo_horn_y()
+                translate_away_from_cockpit(mirror=false)
+                    translate_aileron_away()
+                        color("white") cube([servo_horn_x,servo_horn_y,servo_horn_z],center=true);
+}
+
+
+
+
 module servo()
 {
-    translate([servo_position_x,servo_position_y,foam_height/2+0.1]) rotate([0,0,-servo_position_rotate]) 
+//    translate([servo_position_x,servo_position_y,foam_height/2+0.1])
+    translate_servo_x() translate_servo_y() translate_away_from_cockpit(mirror=false)
+    rotate([0,0,-sweep_d]) translate([-servo_body_y/2,-servo_body_x/2,foam_height/2+0.1]) rotate([0,0,-90]) 
     {
         color("blue") 
         {
@@ -406,7 +499,7 @@ module print_foam(page=2, outline=true)
     }
     if(page==1)
     {
-        translate([0,0,0])   wing_part(cord_percentage = 1);
+        wing_part(cord_percentage = 1);
         translate([a4_h-cockpit_y,(-cockpit_x/2+foam_height)/2,0]) rotate([0,0,90]) scale([0.5,1,1])  cockpit_foam_top();
     }
     if(page==2)
@@ -446,16 +539,7 @@ module print_foam(page=2, outline=true)
     {
         a4_mirror_and_reposition()  print_foam(page=4, outline=outline);
     }
-    
-    /*
-    translate_away_from_cockpit(mirror=true)
-    {
-        half_KMF6_foam();
-        translate([0,-root_cord-aileron_y,0]) aileron_part();
-        translate([wing_span/2+foam_height/2,-root_cord,0]) rotate([0,90,0]) wing_tip();
-    }
-    cockpit_foam();
-    */    
+       
 }
 
 
@@ -470,6 +554,12 @@ module translate_away_from_cockpit(mirror=false)
         translate([cockpit_x/2,0,0])  children();
     }
     
+}
+
+
+module translate_aileron_away()
+{
+    translate([-foam_height,-root_cord-aileron_y,0]) children();
 }
 
 module side_slot(ss_len=cockpit_y/2, start_angle=20, end_angle=0)
@@ -587,7 +677,7 @@ module print_all_new()
 {
     translate([0,cockpit_y/2+cockpit_z/2+foam_height/2,0]) print_part_cut(cut=1);
     translate([cockpit_x/2+cockpit_z/2+foam_height,0,0]) print_part_cut(cut=2);
-    mirror([1,0,0]) translate([cockpit_x/2+cockpit_z/2+foam_height,0,0]) print_part_cut(cut=2);
+    translate([cockpit_x/2+cockpit_z/2+foam_height,0,0]) print_part_cut(cut=2);
     translate([0,-cockpit_y/2-foam_height*3,0]) print_part_cut(cut=3);
     translate([0,-cockpit_y/2-foam_height*8.5,0]) print_part_cut(cut=3);
     print_part_cut(cut=4);
@@ -615,6 +705,10 @@ module print_part_cut_position(cut=4, expand=false)
         {
             translate([0,cockpit_y/2,cockpit_z/2-foam_height]) rotate([0,0,0]) children();
         }
+    if(cut==5)
+        {
+             mirror([1,0,0]) print_part_cut_position(cut=2, expand=expand) children();
+        }
     }
     if(expand==true)
     {
@@ -637,7 +731,7 @@ module print_part_cut_position(cut=4, expand=false)
         }
     if(cut==5)
         {
-            mirror([1,0,0]) translate([space,0,0]) children();
+            translate([space,0,0]) children();
         }
     if(cut==6)
         {
@@ -703,17 +797,11 @@ module print_part_cut(cut=4, expand=false)
         }
         if(cut==5)
         {
-            print_part_cut_position(cut=cut, expand=expand) 
-            {
-                print_part_cut(cut=2,expand=expand);
-            }
+            mirror([1,0,0]) print_part_cut(cut=2,expand=expand);
         }
         if(cut==6)
         {
-            print_part_cut_position(cut=cut, expand=expand) 
-            {
-                print_part_cut(cut=3,expand=expand);
-            }
+            print_part_cut(cut=3,expand=expand);
         }
     }
 }
@@ -746,13 +834,13 @@ module display_foam()
     translate_away_from_cockpit(mirror=false) 
     {
         half_KMF6_foam();
-        translate([-foam_height,-root_cord-aileron_y,0]) aileron_part();
+        translate_aileron_away() aileron_part();
         translate([wing_span/2+foam_height/2,-root_cord,0]) rotate([0,90,0]) wing_tip();
     }
     translate_away_from_cockpit(mirror=true)
     {
         half_KMF6_foam();
-        translate([0,-root_cord-aileron_y,0]) aileron_part();
+        translate_aileron_away() aileron_part();
         translate([wing_span/2+foam_height/2,-root_cord,0]) rotate([0,90,0]) wing_tip();
     }
     cockpit_foam();
