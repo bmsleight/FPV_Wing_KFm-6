@@ -32,8 +32,9 @@ openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../stl/flying_wing_KMf-6_fu
 # Display 2
 openscad ./flying_wing_KMf-6.scad  -D 'display=2' -o ../stl/flying_wing_KMf-6_printed_parts.stl
 openscad ./flying_wing_KMf-6.scad  -D 'display=2' -o ../images/flying_wing_KMf-6_prints.png  --imgsize=1024,768 
-openscad ./flying_wing_KMf-6.scad  -D 'display=2' -D 'expand=true' -o ../images/flying_wing_KMf-6_prints_expand.png  --imgsize=1024,768 
 
+# Display 7 
+openscad ./flying_wing_KMf-6.scad  -D 'display=7' -o ../images/flying_wing_KMf-6_prints_expand.png  --imgsize=1024,768 
 
 
 # Display 3
@@ -54,7 +55,7 @@ pdfunite $WORK_DIR/*.pdf ../images/flying_wing_KMf-6_pages.pdf
 
 
 # Display 6
-declare -a parts=("cockpit" "cockpit_front" "leading_edge_half" "side_panel" "side_panel_mirror")
+declare -a parts=("cockpit" "cockpit_front" "leading_edge_half" "leading_edge_half_mirror" "side_panel" "side_panel_mirror")
 
 echo "####"
 for i in "${parts[@]}"
