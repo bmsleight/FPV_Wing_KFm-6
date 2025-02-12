@@ -22,26 +22,26 @@ trap cleanup EXIT
 
 
 # Display 1
-openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal.png  --imgsize=1024,768 --viewall --autocenter  --camera=0,0,0,30,30,0,0
-openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal_front.png  --imgsize=1024,768 --viewall --autocenter --camera=0,0,0,-30,30,210,0
-openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_front.png  --imgsize=1024,768 --viewall --autocenter --camera=0,0,0,270,0,0,0
+openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal.png  --imgsize=1024,768 -D '$vpr = [45,0,30];' -D '$vpt = [0,-150,0];' -D '$vpd = 1600;'
+openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_diagonal_front.png  --imgsize=1024,768 -D '$vpr = [180-45,0,360-30];' -D '$vpt = [0,-150,0];' -D '$vpd = 1600;'
+openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../images/flying_wing_KMf-6_front.png  --imgsize=1024,768 -D '$vpr = [90,0,180];' -D '$vpt = [0,-150,0];' -D '$vpd = 1600;'
 openscad ./flying_wing_KMf-6.scad  -D 'display=1' -o ../stl/flying_wing_KMf-6_full_model.stl
 
 
 
 # Display 2
 openscad ./flying_wing_KMf-6.scad  -D 'display=2' -o ../stl/flying_wing_KMf-6_printed_parts.stl
-openscad ./flying_wing_KMf-6.scad  -D 'display=2' -o ../images/flying_wing_KMf-6_prints.png  --imgsize=1024,768 
+openscad ./flying_wing_KMf-6.scad  -D 'display=2' -o ../images/flying_wing_KMf-6_prints.png  --imgsize=1024,768   -D '$vpr = [45,0,30];' -D '$vpt = [0,0,0];' -D '$vpd = 800;'
 
 # Display 7 
-openscad ./flying_wing_KMf-6.scad  -D 'display=7' -o ../images/flying_wing_KMf-6_prints_expand.png  --imgsize=1024,768 
+openscad ./flying_wing_KMf-6.scad  -D 'display=7' -o ../images/flying_wing_KMf-6_prints_expand.png  --imgsize=1024,768   -D '$vpr = [45,0,30];' -D '$vpt = [0,-150,0];' -D '$vpd = 1200;'
 
 
 # Display 3
 openscad ./flying_wing_KMf-6.scad  -D 'display=3' -o ../images/flying_wing_KMf-6_foam_sheets.png  --imgsize=1024,768 --viewall --autocenter
 
 # Display 4
-openscad ./flying_wing_KMf-6.scad  -D 'display=4' -o ../images/flying_wing_KMf-6_foam_sheets_outline.svg
+openscad ./flying_wing_KMf-6.scad  -D 'display=4' -o ../images/flying_wing_KMf-6_foam_sheets_outline.svg  --imgsize=1024,768 --viewall --autocenter
 
 
 # SVG files and [single pdf files in temp]
@@ -55,7 +55,7 @@ pdfunite $WORK_DIR/*.pdf ../images/flying_wing_KMf-6_pages.pdf
 
 
 # Display 6
-declare -a parts=("cockpit" "cockpit_front" "leading_edge_half" "leading_edge_half_mirror" "side_panel" "side_panel_mirror")
+declare -a parts=("cockpit" "cockpit_front" "leading_edge_half" "leading_edge_half_mirror" "side_panel" "side_panel_mirror" "fc_lid")
 
 echo "####"
 for i in "${parts[@]}"

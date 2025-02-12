@@ -1,4 +1,8 @@
 
+$vpr = [45,0,30];
+$vpt = [0,0,0];
+$vpd = 800;
+
 // http://fwcg.3dzone.dk/
 // https://www.flitetest.com/articles/kfm-6-flying-wing
 
@@ -36,17 +40,22 @@
 // £121.63 1.72+6.99+8.49+12.99+14.50+2.35+13.99+2.80+6.10+29.80+6.00+1.0+14.90
 
 
-display = 1;
+display = 2;
 display_page = 3;
 expand=false;
 accessories = true;
-display_part = "leading_edge_half_mirror"; //"cockpit" "cockpit_front"  "leading_edge_half" "leading_edge_half_mirror" "side_panel" "side_panel_mirror" )
+vtx=true;
+fc=true;
+foam=true;
+printed=true;
+display_part = "fc_lid"; //"cockpit" "cockpit_front"  "leading_edge_half" "leading_edge_half_mirror" "side_panel" "side_panel_mirror" "fc_lid")
+
 
 module display(display=display)
 {
     if(display==1)
     {
-        display_model(foam=true, printed_part=true);
+        display_model(foam=foam, printed_part=printed);
         if(accessories==true)
         {
             motor_and_prop();
@@ -54,6 +63,8 @@ module display(display=display)
             mirror([1,0,0]) servo();
             servo_horn();
             mirror([1,0,0]) servo_horn();
+            vtx_case(case=false, vtx_unit=true);
+            just_fc();
         }
     }
     if(display==2)
@@ -98,6 +109,10 @@ module display(display=display)
         if(display_part=="cockpit")
         {
             print_part_cut(cut=4);
+        }
+        if(display_part=="fc_lid")
+        {
+            print_part_cut(cut=7);
         }
     }
     if(display==7)
@@ -176,6 +191,8 @@ servo_hole_y_offset = foam_height;
 servo_position_x= (size_of_printer-servo_body_y/2-(foam_height*9)) * cos(sweep_d)+cockpit_x/2; // Not calculated - too hard
 servo_position_y= -(size_of_printer+servo_body_x/2-(foam_height*9)) * sin(sweep_d); // Not calculated - too hard
 servo_position_rotate =  sweep_d+90;
+
+fc_y_offset=-30;
 
 // Spin prop during animation
 prop_a = 30;
@@ -642,11 +659,199 @@ module corner_cockpit()
     }
 }
 
-module cockpit_shell()
+module strut(sx1,sy1,sx2,sy2,sz, unit)
+{
+    hull()
+    {
+        translate([sx1,sy1,unit/2]) cube(unit,center=true);
+        translate([sx2,sy2,sz]) cube(unit,center=true);
+    }
+    
+}
+
+module struts(sx1,sy1,sx2,sy2,sz, unit)
+{
+    strut(sx1,sy1,sx2,sy2,sz, unit);
+    mirror([1,0,0]) strut(sx1,sy1,sx2,sy2,sz, unit);
+    mirror([0,1,0]) strut(sx1,sy1,sx2,sy2,sz, unit);
+    mirror([1,0,0]) mirror([0,1,0]) strut(sx1,sy1,sx2,sy2,sz, unit);
+*    strut(sx1,sy1,-sx1,sy1,unit/2, unit);
+*    mirror([0,1,0])  strut(sx1,sy1,-sx1,sy1,unit/2, unit);
+}
+
+module vtx_case(case=true, vtx_unit=false)
+{
+    inside=34;
+    t=1.25;
+    z_i=t*2;
+
+    cx=inside+t*2;
+    cy=inside+t*2;
+    cz=z_i;
+    vtx_z_offset = 8.5-t/2;
+    vtx_z = 10.5;
+    
+    vtx_height = cockpit_z-foam_height-vtx_z_offset+t;
+//    translate([0,cockpit_y/2-(cy/2/sin(45)),0]) rotate([0,0,45])
+    
+    if(case==true)
+    {
+        translate([0,cockpit_y/2-(cy/2)-foam_height,0]) rotate([0,0,0])
+        { 
+            translate([0,0,vtx_height-cz/2]) difference()
+            {
+                cube([cx,cy,cz],center=true);   
+                translate([0,0,t]) rotate([0,0,0]) union()
+                {
+                    cube([inside,inside,z_i],center=true);
+                    // usb 
+                    translate([0,inside/2,0]) cube([10,inside,z_i], center=true);
+                    // cam
+                    translate([inside/2,inside/2-10/2-8,0]) cube([inside,10,z_i], center=true);
+                    // cables FC 
+                    translate([0,-inside/2,0]) cube([10,inside,z_i], center=true);
+                    // Antenna
+                    translate([-inside/2,inside/2-10/2,0]) cube([inside,10,z_i], center=true);
+                }
+            }
+            struts(-cx/2+foam_height/2,-cy/2+foam_height/2,-cx/2+foam_height/2,-(-cy/2+foam_height/2),vtx_height-cz-foam_height/2+t/2, foam_height);
+        }
+    }
+    if(vtx_unit==true)
+    {
+        translate([0,cockpit_y/2-(cy/2)-foam_height,0]) rotate([0,0,0])
+        { 
+            translate([0,0,vtx_height+t+vtx_z/2])
+            {
+                translate([0,-cockpit_y/2,-cockpit_z/2]) color("black")cube([cx-1,cy-1,vtx_z],center=true);
+            }      
+        }
+    }
+}
+
+
+module pillar(od=7,id=3,ox, oy, oz)
+{
+    translate([ox/2,oy+od/2,0]) difference()
+    {
+        cylinder(h=oz,d=od,center=true);
+        translate([0,0,oz]) cylinder(h=oz*2,d=id,center=true);
+    }
+}
+
+module pillars(od=7, id=3, ox, oy, oz)
+{
+    pillar(od=od,id=id,ox=ox+od, oy=oy, oz=oz);
+    mirror([0,1,0]) pillar(od=od,id=id,ox=ox+od, oy=oy, oz=oz);
+    mirror([1,0,0]) pillar(od=od,id=id,ox=ox+od, oy=oy, oz=oz);
+    mirror([1,0,0]) mirror([0,1,0])  pillar(od=od,id=id,ox=ox+od, oy=oy, oz=oz);
+}
+
+module fc_case_top(od, id,t,ox,oy,oz)
+{
+    difference()
+    {
+        union()
+        {
+            hull()
+            {
+                translate([ox/2+od/2,oy+od/2,0]) cylinder(h=t,d=od,center=true);
+                translate([-(ox/2+od/2),oy+od/2,0]) cylinder(h=t,d=od,center=true);
+            }
+            hull()
+            {
+                translate([ox/2+od/2,-(oy+od/2),0]) cylinder(h=t,d=od,center=true);
+                translate([-(ox/2+od/2),-(oy+od/2),0]) cylinder(h=t,d=od,center=true);
+            }
+            hull()
+            {
+                translate([0,(oy+od/2),0]) cylinder(h=t,d=od,center=true);
+                translate([0,-(oy+od/2),0]) cylinder(h=t,d=od,center=true);
+            }
+        }
+        translate([ox/2+od/2,oy+od/2,0])  cylinder(h=oz*2,d=id,center=true);
+        mirror([0,1,0]) translate([ox/2+od/2,oy+od/2,0])  cylinder(h=oz*2,d=id,center=true);
+        mirror([1,0,0]) translate([ox/2+od/2,oy+od/2,0])  cylinder(h=oz*2,d=id,center=true);
+        mirror([1,0,0]) mirror([0,1,0]) translate([ox/2+od/2,oy+od/2,0])  cylinder(h=oz*2,d=id,center=true);
+
+    }
+}
+
+
+module fc_case(case=true, fc=true, lid=true)
+{
+    t=1.25;
+    tolerance=0.5;
+    fc_x = 37+tolerance;
+    fc_y = 26+tolerance;
+    fc_z = 14+tolerance;
+    gap=17;
+    od=7;
+    id=3;
+    if(case==true)
+    {
+        translate([0,0,0])
+        {
+            translate([0,0,0]) difference()
+            {
+                union()
+                {
+                    cube([fc_x+foam_height,fc_y+foam_height,t*2], center=true);
+                    translate([0,0,-foam_height/2]) cube([fc_x+foam_height*2,fc_y+foam_height*2,foam_height], center=true);
+                }
+                cube([fc_x-foam_height,fc_y-foam_height,foam_height*4], center=true);        
+                translate([0,0,t]) cube([fc_x,fc_y,t*2], center=true);
+            }
+            translate([0,0,(fc_z+foam_height)/2-foam_height]) pillars(od=od,id=id,ox=gap,oy=fc_y/2, oz=fc_z+foam_height);
+            if(lid==true && case==true)
+            {
+                translate([0,0,(fc_z+t/2)]) fc_case_top(od=od, id=id, t=t, ox=gap,oy=fc_y/2, oz=fc_z+t);
+            }    
+        }
+    }
+    
+    if(fc==true)
+    {
+        translate([0,0,(fc_z)/2]) color("Red") cube([fc_x,fc_y,fc_z], center=true);
+    }
+
+    if(lid==true && case==false)
+    {
+        fc_case_top(od=od, id=id, t=t, ox=gap,oy=fc_y/2, oz=fc_z+t);
+     }
+}
+
+module just_fc()
+{
+    if(fc==true)
+    {
+        translate([0,fc_y_offset-cockpit_y/2,-cockpit_z/2+foam_height*2]) fc_case(case=false, fc=true);
+    }
+}
+
+module diagonals()
+{
+    // Diagonals. 
+    translate([0,0,-cockpit_z/2+foam_height*3/2]) intersection()
+    {
+        cube([cockpit_x-foam_height*2,cockpit_y, foam_height], center=true);
+        union()
+        {
+            number_extra = 3;
+            space = cockpit_x/number_extra;
+            for(i = [0:5])
+            {
+                rotate([0,0,45]) translate([-cockpit_x/2+space*i,0]) cube([foam_height,cockpit_y*2,foam_height], center=true);
+                rotate([0,0,-45]) translate([-cockpit_x/2+space*i,0]) cube([foam_height,cockpit_y*2,foam_height], center=true);
+            }
+        }
+    }
+}
+
+module cockpit_shell(vtx=vtx, lid=true)
 {
     translate([0,-cockpit_y/2,0]) 
-    {
-    //    cube([cockpit_x-foam_height*2,cockpit_y, cockpit_z-foam_height*2], center=true);    
+    { 
         translate([0,0,-(cockpit_z-foam_height)/2--foam_height])  
         difference()
         {
@@ -657,22 +862,9 @@ module cockpit_shell()
         cockpit_side_panel();
         mirror([1,0,0]) cockpit_side_panel();
 
-    // Diagonals. 
-        translate([0,0,-cockpit_z/2+foam_height*3/2]) intersection()
-        {
-            cube([cockpit_x-foam_height*2,cockpit_y, foam_height], center=true);
-            union()
-            {
-                number_extra = 3;
-                space = cockpit_x/number_extra;
-                for(i = [0:5])
-                {
-                    rotate([0,0,45]) translate([-cockpit_x/2+space*i,0]) cube([foam_height,cockpit_y*2,foam_height], center=true);
-                    rotate([0,0,-45]) translate([-cockpit_x/2+space*i,0]) cube([foam_height,cockpit_y*2,foam_height], center=true);
-                }
-            }
-        }
-
+    // Diagonals
+        diagonals();
+     
 
         // Back motor
         translate([0,-(cockpit_y-foam_height)/2,0]) difference()
@@ -691,6 +883,14 @@ module cockpit_shell()
             mirror([1,0,0]) corner_cockpit();
             mirror([0,1,0]) corner_cockpit();
             mirror([0,1,0]) mirror([1,0,0]) corner_cockpit();
+        }
+        if(vtx==true)
+        {
+            translate([0,0,-cockpit_z/2+foam_height]) vtx_case();
+        }
+        if(fc==true)
+        {
+            translate([0,fc_y_offset,-cockpit_z/2+foam_height*2]) fc_case(case=true, fc=false, lid=lid);
         }
     }
     
@@ -737,6 +937,10 @@ module print_part_cut_position(cut=4, expand=false)
         {
              mirror([1,0,0]) print_part_cut_position(cut=3, expand=expand) children();
         }
+    if(cut==7)
+        {
+             children();
+        }
     }
     if(expand==true)
     {
@@ -765,6 +969,10 @@ module print_part_cut_position(cut=4, expand=false)
         {
             translate([space,0,0]) children();
         }
+    if(cut==7)
+        {
+            translate([0,-cockpit_y/2+fc_y_offset-foam_height,space]) children();
+        }
     }
 }
 
@@ -777,6 +985,7 @@ module expand_prints()
     print_part_cut(cut=4, expand=true);
     print_part_cut(cut=5, expand=true);
     print_part_cut(cut=6, expand=true);
+    print_part_cut(cut=7, expand=true);    
 }    
 
 
@@ -831,12 +1040,16 @@ module print_part_cut(cut=4, expand=false)
         {
             mirror([1,0,0]) print_part_cut(cut=3,expand=expand);
         }
+        if(cut==7)
+        {
+            print_part_cut_position(cut=cut, expand=expand) fc_case(case=false, fc=false, lid=true);
+        }
     }
 }
 
 
 
-module printed_part()
+module printed_part(lid=false)
 {
     color("Coral")
     {
@@ -858,7 +1071,7 @@ module printed_part()
             }
         }   
         cockpit_front_shell();
-        cockpit_shell();
+        cockpit_shell(lid=lid);
     }
 }
 
@@ -888,7 +1101,7 @@ module display_model(printed_part=true, foam=true)
 {
     if(printed_part)
     {
-        printed_part();
+        printed_part(lid=true);
     }
     if(foam)
     {
