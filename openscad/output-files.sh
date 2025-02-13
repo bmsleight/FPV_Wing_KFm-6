@@ -38,7 +38,7 @@ openscad ./flying_wing_KMf-6.scad  -D 'display=7' -o ../images/flying_wing_KMf-6
 
 
 # Display 3
-openscad ./flying_wing_KMf-6.scad  -D 'display=3' -o ../images/flying_wing_KMf-6_foam_sheets.png  --imgsize=1024,768 --viewall --autocenter
+openscad ./flying_wing_KMf-6.scad  -D 'display=3' -o ../images/flying_wing_KMf-6_foam_sheets.png  --imgsize=1024,768  -D '$vpr = [25,0,25];' -D '$vpt = [0,750,0];' -D '$vpd = 4800;'
 
 # Display 4
 openscad ./flying_wing_KMf-6.scad  -D 'display=4' -o ../images/flying_wing_KMf-6_foam_sheets_outline.svg  --imgsize=1024,768 --viewall --autocenter
@@ -85,3 +85,25 @@ ffmpeg \
         -vf scale=512:-1 \
         "../images/flying_wing_KMf.gif" 
 
+rm "${WORK_DIR}/*.png"
+
+# Expanded model animate
+
+openscad ./flying_wing_KMf-6.scad  -D 'display=7' \
+    -D '$vpr = [45, 0, 360 * $t];' \
+    -D '$vpt = [0,-150,0];' \
+    -D '$vpd = 1300;' \
+    -D 'prop_a = -1890 * $t;' \
+    -o "${WORK_DIR}/rotate.png"  \
+    --imgsize=1024,768 \
+    --animate 120 
+    
+rm ../images/flying_wing_KMf.gif
+    
+ffmpeg \
+        -framerate 30 \
+        -pattern_type glob \
+        -i "${WORK_DIR}/*.png" \
+        -r 120 \
+        -vf scale=512:-1 \
+        "../images/flying_wing_KMf_expanded.gif" 

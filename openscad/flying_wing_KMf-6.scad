@@ -1,7 +1,7 @@
 
-$vpr = [45,0,30];
-$vpt = [0,0,0];
-$vpd = 800;
+//$vpr = [45,0,30];
+//$vpt = [0,-150,0];
+//$vpd = 1200;
 
 // http://fwcg.3dzone.dk/
 // https://www.flitetest.com/articles/kfm-6-flying-wing
@@ -40,15 +40,18 @@ $vpd = 800;
 // £121.63 1.72+6.99+8.49+12.99+14.50+2.35+13.99+2.80+6.10+29.80+6.00+1.0+14.90
 
 
-display = 2;
+display = 7;
 display_page = 3;
 expand=false;
 accessories = true;
 vtx=true;
 fc=true;
+elrs=true;
+elrs_ff=true;
+gps=true;
 foam=true;
 printed=true;
-display_part = "fc_lid"; //"cockpit" "cockpit_front"  "leading_edge_half" "leading_edge_half_mirror" "side_panel" "side_panel_mirror" "fc_lid")
+display_part = "cockpit"; //"cockpit" "cockpit_front"  "leading_edge_half" "leading_edge_half_mirror" "side_panel" "side_panel_mirror" "fc_lid")
 
 
 module display(display=display)
@@ -193,6 +196,18 @@ servo_position_y= -(size_of_printer+servo_body_x/2-(foam_height*9)) * sin(sweep_
 servo_position_rotate =  sweep_d+90;
 
 fc_y_offset=-30;
+
+elrs_x=10;
+elrs_x_offset = 4;
+elrs_y_offset = 5;
+
+gps_x=18;
+gps_x_offset = 3;
+gps_y_offset = 29;
+
+elrs_ff_x=elrs_x;
+elrs_ff_x_offset = elrs_x_offset;
+elrs_ff_y_offset = 45;
 
 // Spin prop during animation
 prop_a = 30;
@@ -848,6 +863,21 @@ module diagonals()
     }
 }
 
+module mount(mx=18,my=18,t=1.5, gap=0.25)
+{
+    difference()
+    {
+        union()
+        {
+            translate([0,0,foam_height/2]) cube([mx+t*4,my+t*4,foam_height], center=true);
+            translate([0,0,(foam_height+t)/2]) cube([mx+t*2,my+t*2,foam_height+t], center=true);
+        }
+        translate([0,(my+t)/2++gap*2,foam_height*3/2]) cube([mx+gap*2,(my+t)*2+gap*2,foam_height], center=true);
+    }
+}
+
+
+
 module cockpit_shell(vtx=vtx, lid=true)
 {
     translate([0,-cockpit_y/2,0]) 
@@ -891,6 +921,18 @@ module cockpit_shell(vtx=vtx, lid=true)
         if(fc==true)
         {
             translate([0,fc_y_offset,-cockpit_z/2+foam_height*2]) fc_case(case=true, fc=false, lid=lid);
+        }
+        if(elrs==true)
+        {
+            translate([-cockpit_x/2+elrs_x_offset+(elrs_x+1.5*4)/2,-cockpit_x/2+elrs_y_offset-(elrs_x+1.5*4)/2,-cockpit_z/2+foam_height]) rotate([0,0,270]) mount(elrs_x,elrs_x);
+        }
+        if(gps==true)
+        {
+            translate([-cockpit_x/2+gps_x_offset+(gps_x+1.5*4)/2,-cockpit_x/2+gps_y_offset-(gps_x+1.5*4)/2,-cockpit_z/2+foam_height]) rotate([0,0,270]) mount(gps_x,gps_x);
+        }
+        if(elrs_ff==true)
+        {
+            translate([-cockpit_x/2+elrs_ff_x_offset+(elrs_ff_x+1.5*4)/2,-cockpit_x/2+elrs_ff_y_offset-(elrs_ff_x+1.5*4)/2,-cockpit_z/2+foam_height]) rotate([0,0,270]) mount(elrs_ff_x,elrs_ff_x);
         }
     }
     
@@ -971,7 +1013,7 @@ module print_part_cut_position(cut=4, expand=false)
         }
     if(cut==7)
         {
-            translate([0,-cockpit_y/2+fc_y_offset-foam_height,space]) children();
+            translate([0,-cockpit_y/2+fc_y_offset-foam_height,space*1]) children();
         }
     }
 }

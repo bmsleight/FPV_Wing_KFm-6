@@ -37,15 +37,11 @@ Only eight sheets are needed. The model can export directly the SVG file, per pa
 
 ![](./images/flying_wing_KMf-6_page_2.svg "Model")
 
-The 3d parts can be printed on a standard 200x200 print bed, with only one part requiring supports. Prints with single walls, 5% infill, are 72g or 85g including supports. 
-
-The model directly exports the print bed model. As well as individual parts in the [stl directory](https://github.com/bmsleight/FPV_Wing_KFm-6/tree/main/stl)
-
-![https://github.com/bmsleight/FPV_Wing_KFm-6/tree/main/stl](./images/flying_wing_KMf-6_prints.png "Print Bed")
+The 3d parts can be printed on a standard 200x200 print bed, with only one part requiring supports. The seven individual parts in the [stl directory](https://github.com/bmsleight/FPV_Wing_KFm-6/tree/main/stl)
 
 ![https://github.com/bmsleight/FPV_Wing_KFm-6/tree/main/stl](./images/flying_wing_KMf-6_prints_expand.png "Prints Expanded")
 
-
+![](./images/flying_wing_KMf_expanded.gif "Model expanded rotated")
 
 ## Model 
 
