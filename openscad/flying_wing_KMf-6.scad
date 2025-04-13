@@ -41,7 +41,7 @@
 
 
 display = 5;
-display_page = 1;
+display_page = 9;
 expand=false;
 accessories = true;
 vtx=true;
@@ -475,7 +475,7 @@ module cockpit_foam_side()
 
 module cockpit_foam()
 {
-!    translate([0,0,cockpit_z/2-foam_height/2]) cockpit_foam_top();
+    translate([0,0,cockpit_z/2-foam_height/2]) cockpit_foam_top();
     translate([0,0,-cockpit_z/2+foam_height/2]) cockpit_foam_top();
     /// No longer needed with printed side panels
     /// ** stared out  ***
@@ -605,7 +605,7 @@ module chamfer()
 }
 
 
-module print_foam_all(pages=8, outline=true)
+module print_foam_all(pages=9, outline=true)
 {
     for (i = [1 : pages])
     {
@@ -665,6 +665,15 @@ module print_foam(page=2, outline=true)
     if(page==8)
     {
         a4_mirror_and_reposition()  print_foam(page=4, outline=outline);
+    }
+    if(page==9)
+    {
+        translate([cockpit_x/2-foam_height,0,0]) rotate([0,0,0]) scale([1,1,1])  cockpit_foam_top();
+        translate([cockpit_x/2-foam_height+cockpit_x,0,0]) rotate([0,0,0]) scale([1,1,1])  difference()
+        {
+            cockpit_foam_top();
+           translate([0,0,-15]) scale([1,1,1])  vtx_case(case=true, vtx_unit=true);
+        }
     }
        
 }
