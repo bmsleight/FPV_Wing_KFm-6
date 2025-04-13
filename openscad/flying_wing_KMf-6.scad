@@ -320,7 +320,7 @@ module wing_part(cord_percentage = 1, servo_hole=true)
     }
     if(servo_hole==true)
     {
-!        difference()
+        difference()
         {
             wing_part_not_cut(cord_percentage = cord_percentage);
             translate([foam_height-cockpit_x/2,0,0]) servo_hole();
@@ -453,6 +453,14 @@ module cockpit_foam_top()
     
 }
 
+module cockpit_foam_top_full()
+{
+    cockpit_foam_top();
+    translate([0,0,0 ]) cockpit_foam_top();
+}
+
+
+
 module cockpit_foam_side()
 {
     translate([0,0,0 ]) 
@@ -467,7 +475,7 @@ module cockpit_foam_side()
 
 module cockpit_foam()
 {
-    translate([0,0,cockpit_z/2-foam_height/2]) cockpit_foam_top();
+!    translate([0,0,cockpit_z/2-foam_height/2]) cockpit_foam_top();
     translate([0,0,-cockpit_z/2+foam_height/2]) cockpit_foam_top();
     /// No longer needed with printed side panels
     /// ** stared out  ***
