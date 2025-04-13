@@ -3,8 +3,9 @@
 <svg width="297mm" height="210mm" viewBox="0 0 297 210" xmlns="http://www.w3.org/2000/svg" version="1.1">
 <title>OpenSCAD Model</title>
 <path d="
-M 297,150 L 297,-0 L 151.7,78.2761 L 160.918,95.3871 L 130.105,111.987 L 120.887,94.8758
- L 0,160 L 0,210 z
 M 150,-0 L 0,-0 L 0,52.5 L 150,52.5 z
+M 297,150 L 297,37.5 L 227.391,37.5 L 222.75,40.0002 L 176.075,65.1616 L 176.075,65.1447
+ L 151.7,78.2761 L 160.918,95.3871 L 130.105,111.987 L 120.887,94.8758 L 0,160 L 0,210
+ z
 " stroke="black" fill="lightgray" stroke-width="0.5"/>
 </svg>

@@ -97,13 +97,12 @@ openscad ./flying_wing_KMf-6.scad  -D 'display=7' \
     -o "${WORK_DIR}/rotate.png"  \
     --imgsize=1024,768 \
     --animate 120 
-    
-rm ../images/flying_wing_KMf.gif
-    
+
+
 ffmpeg \
         -framerate 30 \
         -pattern_type glob \
         -i "${WORK_DIR}/*.png" \
         -r 120 \
-        -vf scale=512:-1 \
+        -vf scale=512:-1 -y \
         "../images/flying_wing_KMf_expanded.gif" 
